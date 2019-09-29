@@ -19,14 +19,13 @@ AlbertiDisk::AlbertiDisk(string fixedAlphabet, string movedAlphabet)
 		throw "Wrong arguments! (fixedAlphabet > 0, movedAlphabet > 0, fixedAlphabet = movedAlphabet)";
 	}
 
-	random_device rd;
-	mt19937 mersenne(rd());
-	shuffle(movedAlphabet.begin(), movedAlphabet.end(), mersenne);
-
 	/* building map of replacements */
 	for (unsigned int i = 0; i < fixedAlphabet.length(); i++) {
 		replacementsMap.insert(pair<char, char>(fixedAlphabet.at(i), movedAlphabet.at(i)));
 	}
+
+	this->fixedAlphabet = fixedAlphabet;
+	this->movedAlphabet = movedAlphabet;
 }
 
 
@@ -34,9 +33,9 @@ AlbertiDisk::~AlbertiDisk()
 {
 }
 
+/* encryption by map of replacements; building new string */
 string AlbertiDisk::encryptText(string text)
 {
-	/* encryption by map of replacements; building new string */
 	string encryptedText;
 	for (unsigned int i = 0; i < text.length(); i++) {
 		encryptedText = encryptedText + replacementsMap.at(text.at(i));
@@ -45,9 +44,9 @@ string AlbertiDisk::encryptText(string text)
 	return encryptedText;
 }
 
+/* decryption by map of replacements; building new string */
 string AlbertiDisk::decryptText(string text)
 {
-	/* decryption by map of replacements; building new string */
 	map<char, char> invertedMap = invertMap();
 
 	string decryptedText;
@@ -56,6 +55,29 @@ string AlbertiDisk::decryptText(string text)
 	}
 
 	return decryptedText;
+}
+
+string AlbertiDisk::findKey(string ciphertext, string originalText)
+{
+	string decryptedText;
+
+	string nextPermutation = movedAlphabet;
+	while (true) {
+		replacementsMap.clear();
+		/* building map of replacements */
+		for (unsigned int i = 0; i < fixedAlphabet.length(); i++) {
+			replacementsMap.insert(pair<char, char>(fixedAlphabet.at(i), nextPermutation.at(i)));
+		}
+
+		decryptedText = decryptText(ciphertext);
+		if (decryptedText == originalText) {
+			break;
+		}
+
+		next_permutation(nextPermutation.begin(), nextPermutation.end());
+	}
+
+	return nextPermutation;
 }
 
 /* turn values of map right to one position */
@@ -81,6 +103,22 @@ void AlbertiDisk::turnMovedDiskLeft()
 		char currValue = it->second;
 		it->second = turnValue;
 		turnValue = currValue;
+	}
+}
+
+void AlbertiDisk::shuffleMovedDisk()
+{
+	string alphabet = movedAlphabet;
+
+	random_device rd;
+	mt19937 mersenne(rd());
+	shuffle(alphabet.begin(), alphabet.end(), mersenne);
+
+	replacementsMap.clear();
+
+	/* building map of replacements */
+	for (unsigned int i = 0; i < fixedAlphabet.length(); i++) {
+		replacementsMap.insert(pair<char, char>(fixedAlphabet.at(i), alphabet.at(i)));
 	}
 }
 

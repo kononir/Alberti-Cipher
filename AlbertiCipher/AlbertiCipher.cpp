@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string>
 #include <conio.h>
+#include <algorithm>
 #include "AlbertiDisk.h"
 
 using namespace std;
@@ -14,12 +15,13 @@ string alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789
 int main()
 {
 	AlbertiDisk disk = AlbertiDisk(alphabet, alphabet);
+	AlbertiDisk hackerDisk = AlbertiDisk(alphabet, alphabet);
 
 	int choice;
-	string message, ciphertext, decryptedMessage;
+	string message, ciphertext, decryptedMessage, foundKey;
 	while (true)
 	{
-		cout << "1 - Show alberti disk,\n 2 - Encrypt message,\n 3 - Turn disk right,\n 4 - Turn disk left,\n 0 - Exit\n\n";
+		cout << "1 - Show alberti disk,\n2 - Encrypt message,\n3 - Find key,\n4 - Shuffle moved disk, \n5 - Turn disk right,\n6 - Turn disk left,\n0 - Exit\n\n";
 		choice = _getch();
 
 		switch (choice)
@@ -41,9 +43,24 @@ int main()
 			cout << decryptedMessage << endl << endl;
 			break;
 		case 51:
-			disk.turnMovedDiskRight();
+			cout << "Enter message:" << endl;
+			cin >> message;
+
+			ciphertext = disk.encryptText(message);
+			cout << endl << "Ciphertext:" << endl;
+			cout << ciphertext << endl << endl;
+
+			foundKey = hackerDisk.findKey(ciphertext, message);
+			cout << "Found key:" << endl;
+			cout << foundKey << endl << endl;
 			break;
 		case 52:
+			disk.shuffleMovedDisk();
+			break;
+		case 53:
+			disk.turnMovedDiskRight();
+			break;
+		case 54:
 			disk.turnMovedDiskLeft();
 			break;
 		case 48:
